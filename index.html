@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>네모칸 자르기 게임</title>
+    <style>
+      :root {
+        /* minimal, modern palette */
+        --bg: #f7f7fb;
+        --panel: #ffffff;
+        --panel-soft: #fafafc;
+        --border: #e5e7eb;
+
+        --text: #111827; /* 거의 검정 */
+        --text-muted: #6b7280;
+
+        --accent: #0ea5a1; /* teal 500 */
+        --accent-600: #0d9488;
+        --accent-700: #0f766e;
+        --accent-50: #ecfeff;
+
+        --shadow-sm: 0 2px 8px rgba(17, 24, 39, 0.05);
+        --shadow-md: 0 8px 30px rgba(17, 24, 39, 0.08);
+        --shadow-inset: inset 0 2px 10px rgba(17, 24, 39, 0.04);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        touch-action: manipulation;
+      }
+      body {
+        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #app {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow-md);
+      }
+
+      header {
+        text-align: center;
+        padding: 28px 22px 20px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+      }
+      h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+        margin-bottom: 6px;
+      }
+      .subtitle {
+        font-size: 0.98rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
+      .game-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        padding: 18px 22px;
+        background: var(--panel-soft);
+        border-bottom: 1px solid var(--border);
+      }
+      .info-item {
+        text-align: center;
+        padding: 14px 10px;
+        border-radius: 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        font-weight: 700;
+        font-size: 0.94rem;
+      }
+      .info-item span {
+        display: inline-block;
+        margin-top: 4px;
+        font-size: 1.2rem;
+        color: var(--accent-700);
+      }
+      .info-item.highlight {
+        background: linear-gradient(
+            0deg,
+            rgba(14, 165, 161, 0.06),
+            rgba(14, 165, 161, 0.06)
+          ),
+          var(--panel);
+        border-color: rgba(14, 165, 161, 0.25);
+      }
+
+      .game-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 18px 22px;
+        background: var(--panel);
+      }
+
+      .rectangle-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 18px;
+        border-radius: 14px;
+        background: var(--panel-soft);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-inset);
+      }
+
+      /* 남은 영역(플레이 영역) – 은은한 티얼 틴트 */
+      .remaining-area {
+        position: absolute;
+        inset: auto 0 0 0; /* top은 JS에서 지정 */
+        width: 100%;
+        background: rgba(14, 165, 161, 0.1);
+        border-top: 1px solid rgba(14, 165, 161, 0.35);
+        transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* 컷 라인 – 선명하지만 과하지 않게 */
+      .cut-line {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--accent-700);
+        box-shadow: 0 1px 6px rgba(14, 165, 161, 0.35);
+        border-radius: 2px;
+        z-index: 10;
+      }
+
+      /* 버튼 – 단색, 고대비 */
+      .cut-btn {
+        background: var(--accent);
+        border: 1px solid var(--accent-600);
+        border-radius: 12px;
+        padding: 18px 24px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+        max-width: 320px;
+        margin: 14px auto 0;
+        box-shadow: 0 6px 20px rgba(14, 165, 161, 0.25);
+        transition: transform 0.12s ease, box-shadow 0.2s ease,
+          background 0.2s ease;
+      }
+      .cut-btn:hover {
+        background: var(--accent-600);
+        box-shadow: 0 8px 26px rgba(14, 165, 161, 0.32);
+        transform: translateY(-1px);
+      }
+      .cut-btn:active {
+        background: var(--accent-700);
+        transform: translateY(0);
+      }
+      .cut-btn:disabled {
+        background: #d1d5db;
+        border-color: #d1d5db;
+        color: #6b7280;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+
+      .instructions {
+        margin-top: 14px;
+        text-align: center;
+        padding: 14px;
+        border-radius: 12px;
+        background: var(--panel-soft);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.94rem;
+        line-height: 1.55;
+      }
+
+      /* 게임 오버 모달 */
+      .game-over {
+        display: none;
+        position: absolute;
+        inset: 0;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(6px);
+        z-index: 20;
+        padding: 36px;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        border: 1px solid var(--border);
+      }
+      .game-over h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 14px;
+        color: var(--text);
+      }
+      .game-over p {
+        font-size: 1.05rem;
+        margin-bottom: 10px;
+        color: var(--text);
+      }
+      .best-score {
+        color: var(--accent-700);
+        font-weight: 800;
+      }
+
+      /* 컷 이펙트 – 아주 연한 음영만 */
+      .cut-effect {
+        position: absolute;
+        z-index: 5;
+        background: rgba(17, 24, 39, 0.06);
+        transition: opacity 0.4s ease;
+        border-radius: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>네모칸 자르기</h1>
+        <div class="subtitle">정확한 타이밍에 도전하세요!</div>
+      </header>
+
+      <div class="game-info">
+        <div class="info-item">
+          레벨<br />
+          <span style="font-size: 1.3rem; color: #a2cdb0" id="level">1</span>
+        </div>
+        <div class="info-item">
+          자른 횟수<br />
+          <span style="font-size: 1.3rem; color: #f1c27b" id="cutCount">0</span>
+        </div>
+        <div class="info-item highlight">
+          최고 기록<br />
+          <span style="font-size: 1.3rem" id="bestScore">0</span>
+        </div>
+      </div>
+
+      <div class="game-container">
+        <div class="rectangle-container" id="gameArea">
+          <!-- 남은 영역 -->
+          <div class="remaining-area" id="remainingArea"></div>
+          <!-- 자르기 선 -->
+          <div class="cut-line" id="cutLine"></div>
+
+          <div class="game-over" id="gameOver">
+            <h2>게임 오버!</h2>
+            <p>최종 자른 횟수: <span id="finalCutCount">0</span></p>
+            <p>달성한 레벨: <span id="finalLevel">1</span></p>
+            <p class="best-score">
+              최고 기록: <span id="finalBestScore">0</span>
+            </p>
+            <button class="restart-btn" id="restartBtn">다시 시작</button>
+          </div>
+        </div>
+
+        <button class="cut-btn" id="cutBtn">자르기</button>
+
+        <div class="instructions">
+          골드색 영역이 남은 부분입니다<br />
+          검은 선이 원하는 위치에 왔을 때 자르기 버튼을 누르세요<br />
+          더 작은 부분만 남고 나머지는 사라집니다
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 게임 상태
+      const gameState = {
+        level: 1,
+        cutCount: 0,
+        bestScore: 0,
+        remainingTop: 0,
+        remainingHeight: 0,
+        totalHeight: 0,
+        lineSpeed: 1.5,
+        lineDirection: 1,
+        linePosition: 0,
+        gameActive: true,
+        animationId: null,
+        isCutting: false,
+      };
+
+      // DOM 요소
+      const gameArea = document.getElementById("gameArea");
+      const remainingArea = document.getElementById("remainingArea");
+      const cutLine = document.getElementById("cutLine");
+      const cutBtn = document.getElementById("cutBtn");
+      const levelDisplay = document.getElementById("level");
+      const cutCountDisplay = document.getElementById("cutCount");
+      const bestScoreDisplay = document.getElementById("bestScore");
+      const gameOverScreen = document.getElementById("gameOver");
+      const finalCutCountDisplay = document.getElementById("finalCutCount");
+      const finalLevelDisplay = document.getElementById("finalLevel");
+      const finalBestScoreDisplay = document.getElementById("finalBestScore");
+      const restartBtn = document.getElementById("restartBtn");
+
+      // 로컬 스토리지에서 최고 기록 불러오기
+      function loadBestScore() {
+        const saved = localStorage.getItem("cuttingGameBestScore");
+        gameState.bestScore = saved ? parseInt(saved) : 0;
+        bestScoreDisplay.textContent = gameState.bestScore;
+      }
+
+      // 최고 기록 저장하기
+      function saveBestScore() {
+        if (gameState.cutCount > gameState.bestScore) {
+          gameState.bestScore = gameState.cutCount;
+          localStorage.setItem(
+            "cuttingGameBestScore",
+            gameState.bestScore.toString()
+          );
+          bestScoreDisplay.textContent = gameState.bestScore;
+        }
+      }
+
+      // 게임 초기화
+      function initGame() {
+        gameState.level = 1;
+        gameState.cutCount = 0;
+        gameState.lineSpeed = 1.5;
+        gameState.lineDirection = 1;
+        gameState.linePosition = 0;
+        gameState.gameActive = true;
+        gameState.isCutting = false;
+
+        // 전체 높이 설정
+        gameState.totalHeight = gameArea.offsetHeight;
+        gameState.remainingTop = 0;
+        gameState.remainingHeight = gameState.totalHeight;
+
+        updateDisplays();
+        updateRemainingArea();
+        updateCutLine();
+
+        gameOverScreen.style.display = "none";
+        cutBtn.disabled = false;
+
+        // 게임 루프 시작
+        if (gameState.animationId) {
+          cancelAnimationFrame(gameState.animationId);
+        }
+        gameLoop();
+      }
+
+      // 디스플레이 업데이트
+      function updateDisplays() {
+        levelDisplay.textContent = gameState.level;
+        cutCountDisplay.textContent = gameState.cutCount;
+        bestScoreDisplay.textContent = gameState.bestScore;
+      }
+
+      // 남은 영역 업데이트
+      function updateRemainingArea() {
+        remainingArea.style.top = `${gameState.remainingTop}px`;
+        remainingArea.style.height = `${gameState.remainingHeight}px`;
+      }
+
+      // 자르기 선 업데이트
+      function updateCutLine() {
+        cutLine.style.top = `${gameState.linePosition}px`;
+      }
+
+      // 자르기 버튼 클릭 이벤트
+      cutBtn.addEventListener("click", function () {
+        if (!gameState.gameActive || gameState.isCutting) return;
+
+        // 즉시 멈춤
+        gameState.isCutting = true;
+        cutBtn.disabled = true;
+
+        const cutPosition = gameState.linePosition;
+        const remainingBottom =
+          gameState.remainingTop + gameState.remainingHeight;
+
+        if (
+          cutPosition < gameState.remainingTop ||
+          cutPosition > remainingBottom
+        ) {
+          saveBestScore();
+          endGame();
+          return;
+        }
+
+        // 즉시 자르기 실행
+        executeCut(cutPosition);
+      });
+
+      // 실제 자르기 실행
+      function executeCut(cutPosition) {
+        const remainingBottom =
+          gameState.remainingTop + gameState.remainingHeight;
+        const topPieceSize = cutPosition - gameState.remainingTop;
+        const bottomPieceSize = remainingBottom - cutPosition;
+
+        if (topPieceSize < bottomPieceSize) {
+          showCutEffect(cutPosition, remainingBottom);
+          gameState.remainingHeight = topPieceSize;
+        } else {
+          showCutEffect(gameState.remainingTop, cutPosition);
+          gameState.remainingHeight = bottomPieceSize;
+          gameState.remainingTop = cutPosition;
+        }
+
+        gameState.cutCount++;
+        gameState.level++;
+        gameState.lineSpeed += 0.8;
+
+        updateRemainingArea();
+        updateDisplays();
+
+        // 바로 게임 재개
+        setTimeout(() => {
+          gameState.isCutting = false;
+          cutBtn.disabled = false;
+          gameLoop();
+        }, 400);
+      }
+
+      // 자르기 효과 표시
+      function showCutEffect(start, end) {
+        const cutEffect = document.createElement("div");
+        cutEffect.className = "cut-effect";
+        cutEffect.style.top = `${start}px`;
+        cutEffect.style.left = "0";
+        cutEffect.style.width = "100%";
+        cutEffect.style.height = `${end - start}px`;
+
+        gameArea.appendChild(cutEffect);
+
+        setTimeout(() => {
+          cutEffect.style.opacity = "0";
+          setTimeout(() => {
+            if (cutEffect.parentNode) {
+              cutEffect.parentNode.removeChild(cutEffect);
+            }
+          }, 500);
+        }, 300);
+      }
+
+      // 게임 루프
+      function gameLoop() {
+        if (!gameState.gameActive || gameState.isCutting) return;
+
+        gameState.linePosition += gameState.lineSpeed * gameState.lineDirection;
+
+        if (gameState.linePosition <= 0) {
+          gameState.linePosition = 0;
+          gameState.lineDirection = 1;
+        } else if (gameState.linePosition >= gameState.totalHeight) {
+          gameState.linePosition = gameState.totalHeight;
+          gameState.lineDirection = -1;
+        }
+
+        updateCutLine();
+        gameState.animationId = requestAnimationFrame(gameLoop);
+      }
+
+      // 게임 종료
+      function endGame() {
+        gameState.gameActive = false;
+        finalCutCountDisplay.textContent = gameState.cutCount;
+        finalLevelDisplay.textContent = gameState.level;
+        finalBestScoreDisplay.textContent = gameState.bestScore;
+        gameOverScreen.style.display = "flex";
+        cutBtn.disabled = true;
+
+        if (gameState.animationId) {
+          cancelAnimationFrame(gameState.animationId);
+        }
+      }
+
+      // 다시 시작
+      restartBtn.addEventListener("click", initGame);
+
+      // 최고 기록 불러오기
+      loadBestScore();
+
+      // 게임 시작
+      initGame();
+    </script>
+  </body>
+</html>
