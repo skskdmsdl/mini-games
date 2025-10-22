@@ -6,6 +6,9 @@ const gameState = {
   remainingTop: 0,
   remainingHeight: 0,
   totalHeight: 0,
+  playHeight: 0,
+  initialPlayHeight: 0,
+  initialOffset: 60,
   lineSpeed: 1.5,
   lineDirection: 1,
   linePosition: 0,
@@ -17,6 +20,7 @@ const gameState = {
 // DOM 요소
 const elements = {
   gameArea: document.getElementById("gameArea"),
+  rectangleContainer: document.querySelector(".rectangle-container"),
   remainingArea: document.getElementById("remainingArea"),
   cutLine: document.getElementById("cutLine"),
   cutBtn: document.getElementById("cutBtn"),
@@ -38,6 +42,14 @@ function measureHeights() {
   // 라인 두께 고려
   const lineThickness = 4;
   gameState._lineMax = Math.max(gameState.totalHeight - lineThickness, 0);
+
+  // 초기 playHeight가 설정되지 않았다면 설정
+  if (gameState.initialPlayHeight === 0) {
+    gameState.initialPlayHeight = Math.max(
+      gameState.totalHeight - gameState.initialOffset,
+      100
+    );
+  }
 }
 
 // 로컬 스토리지에서 최고 기록 불러오기
@@ -73,7 +85,18 @@ function initGame() {
   // 높이 측정 및 초기화
   setTimeout(() => {
     measureHeights();
-    gameState.remainingHeight = gameState.totalHeight;
+
+    // 항상 초기 높이 사용
+    gameState.playHeight = gameState.initialPlayHeight;
+    gameState.remainingTop = 0;
+    gameState.remainingHeight = gameState.playHeight;
+
+    const lineThickness = elements.cutLine.offsetHeight || 4;
+    gameState._lineMax = Math.max(gameState.playHeight - lineThickness, 0);
+
+    // 컨테이너 높이 고정 설정
+    elements.rectangleContainer.style.maxHeight = `${gameState.playHeight}px`;
+    elements.rectangleContainer.style.height = `${gameState.playHeight}px`;
 
     updateDisplays();
     updateRemainingArea();
@@ -126,9 +149,6 @@ function executeCut(cutPosition) {
   gameState.cutCount++;
   gameState.level++;
   gameState.lineSpeed += 0.8;
-
-  // 높이 재측정
-  measureHeights();
 
   updateDisplays();
   updateRemainingArea();
@@ -220,23 +240,18 @@ function setupEventListeners() {
   window.addEventListener("resize", function () {
     if (!gameState.gameActive) return;
 
+    // 높이 재측정
     measureHeights();
 
-    // 위치 보정
-    gameState.remainingTop = Math.min(
-      gameState.remainingTop,
-      gameState.totalHeight
-    );
-    gameState.remainingHeight = Math.min(
-      gameState.remainingHeight,
-      Math.max(gameState.totalHeight - gameState.remainingTop, 0)
-    );
+    // 컨테이너 높이 다시 설정
+    elements.rectangleContainer.style.maxHeight = `${gameState.initialPlayHeight}px`;
+    elements.rectangleContainer.style.height = `${gameState.initialPlayHeight}px`;
+
+    // 라인 위치 보정
     gameState.linePosition = Math.min(
       gameState.linePosition,
       gameState._lineMax
     );
-
-    updateRemainingArea();
     updateCutLine();
   });
 }

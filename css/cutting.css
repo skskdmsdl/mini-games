@@ -52,13 +52,13 @@ body {
 
 .info-item {
   text-align: center;
-  padding: 12px 8px;
+  padding: 8px 6px;
   border-radius: 10px;
   background: var(--panel);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .info-item span {
@@ -100,7 +100,7 @@ body {
     30svh,
     360px
   ); /* 최소 200px, 보통 30svh, 최대 360px */
-  max-height: 45svh; /* 너무 커지면 상한 */
+  /* max-height: 50svh; */
 
   border-radius: 14px;
   background: #fafafc;
@@ -237,10 +237,6 @@ body {
 
   .game-container {
     padding: 12px 16px;
-  }
-
-  .rectangle-container {
-    margin-bottom: 12px;
   }
 
   .cut-btn {
