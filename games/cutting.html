@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>네모칸 자르기 게임</title>
+    <link rel="stylesheet" href="../css/cutting.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="game-info">
+        <div class="info-item">
+          레벨<br />
+          <span id="level">1</span>
+        </div>
+        <div class="info-item">
+          자른 횟수<br />
+          <span id="cutCount">0</span>
+        </div>
+        <div class="info-item highlight">
+          최고 기록<br />
+          <span id="bestScore">0</span>
+        </div>
+      </div>
+
+      <div class="game-container">
+        <div class="rectangle-container" id="gameArea">
+          <div class="remaining-area" id="remainingArea"></div>
+          <div class="cut-line" id="cutLine"></div>
+
+          <div class="game-over" id="gameOver">
+            <h2>게임 오버!</h2>
+            <p>최종 자른 횟수: <span id="finalCutCount">0</span></p>
+            <p>달성한 레벨: <span id="finalLevel">1</span></p>
+            <p class="best-score">
+              최고 기록: <span id="finalBestScore">0</span>
+            </p>
+            <button class="restart-btn" id="restartBtn">다시 시작</button>
+          </div>
+        </div>
+
+        <button class="cut-btn" id="cutBtn">자르기</button>
+
+        <div class="instructions">
+          초록색 영역이 남은 부분입니다<br />
+          진한 초록 선이 원하는 위치에 왔을 때 자르기 버튼을 누르세요<br />
+          더 작은 부분만 남고 나머지는 사라집니다
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/cutting.js"></script>
+  </body>
+</html>

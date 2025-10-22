@@ -6,57 +6,126 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>네모칸 자르기 게임</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <title>미니게임 천국</title>
+    <link rel="stylesheet" href="css/main.css" />
   </head>
   <body>
-    <div id="app">
-      <header>
-        <h1>네모칸 자르기</h1>
-        <div class="subtitle">정확한 타이밍에 도전하세요!</div>
-      </header>
+    <!-- 헤더 -->
+    <header class="main-header">
+      <button class="menu-toggle" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <h1 class="header-title">미니게임 천국</h1>
+      <div class="header-placeholder"></div>
+    </header>
 
-      <div class="game-info">
-        <div class="info-item">
-          레벨<br />
-          <span id="level">1</span>
-        </div>
-        <div class="info-item">
-          자른 횟수<br />
-          <span id="cutCount">0</span>
-        </div>
-        <div class="info-item highlight">
-          최고 기록<br />
-          <span id="bestScore">0</span>
+    <!-- 사이드바 오버레이 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- 사이드바 -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>🎮 게임 선택</h2>
+        <button class="sidebar-close" id="sidebarClose">×</button>
+      </div>
+      <ul class="game-list">
+        <li class="game-item" data-game="cutting">
+          <span class="game-icon">✂️</span>
+          <span class="game-name">네모칸 자르기</span>
+        </li>
+        <li class="game-item" data-game="memory">
+          <span class="game-icon">🎨</span>
+          <span class="game-name">컬러 메모리</span>
+        </li>
+        <li class="game-item" data-game="balance">
+          <span class="game-icon">⚖️</span>
+          <span class="game-name">에너지 밸런스</span>
+        </li>
+        <li class="game-item" data-game="rhythm">
+          <span class="game-icon">🎵</span>
+          <span class="game-name">리듬 탭</span>
+        </li>
+        <li class="game-item" data-game="puzzle">
+          <span class="game-icon">🧩</span>
+          <span class="game-name">숫자 퍼즐</span>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="user-stats">
+          <div>총 플레이: <span id="totalPlays">0</span>회</div>
+          <div>최고 기록: <span id="totalBestScore">0</span>점</div>
         </div>
       </div>
+    </nav>
 
-      <div class="game-container">
-        <div class="rectangle-container" id="gameArea">
-          <div class="remaining-area" id="remainingArea"></div>
-          <div class="cut-line" id="cutLine"></div>
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+      <!-- 웰컴 스크린 -->
+      <div class="welcome-screen active" id="welcomeScreen">
+        <div class="welcome-content">
+          <div class="hero-section">
+            <h2>🎯 다양한 미니게임을 즐겨보세요!</h2>
+            <p>간단한 조작으로 즐기는 중독성 있는 게임들</p>
+          </div>
 
-          <div class="game-over" id="gameOver">
-            <h2>게임 오버!</h2>
-            <p>최종 자른 횟수: <span id="finalCutCount">0</span></p>
-            <p>달성한 레벨: <span id="finalLevel">1</span></p>
-            <p class="best-score">
-              최고 기록: <span id="finalBestScore">0</span>
-            </p>
-            <button class="restart-btn" id="restartBtn">다시 시작</button>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-icon">⚡</div>
+              <h3>빠른 시작</h3>
+              <p>간단한 터치만으로 바로 게임 시작</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🏆</div>
+              <h3>기록 경쟁</h3>
+              <p>최고 점수를 향한 도전</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🎮</div>
+              <h3>다양한 게임</h3>
+              <p>계속 업데이트되는 미니게임</p>
+            </div>
+          </div>
+
+          <div class="popular-games">
+            <h3>🔥 인기 게임</h3>
+            <div class="game-cards">
+              <div class="game-card" data-game="cutting">
+                <div class="card-icon">✂️</div>
+                <div class="card-content">
+                  <h4>네모칸 자르기</h4>
+                  <p>정확한 타이밍에 자르는 게임</p>
+                  <div class="card-stats">
+                    <span>⭐ 4.8</span>
+                    <span>🔥 1.2K</span>
+                  </div>
+                </div>
+              </div>
+              <div class="game-card" data-game="memory">
+                <div class="card-icon">🎨</div>
+                <div class="card-content">
+                  <h4>컬러 메모리</h4>
+                  <p>색상 패턴을 기억하는 게임</p>
+                  <div class="card-stats">
+                    <span>⭐ 4.6</span>
+                    <span>🔥 890</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
-        <button class="cut-btn" id="cutBtn">자르기</button>
-
-        <div class="instructions">
-          초록색 영역이 남은 부분입니다<br />
-          진한 초록 선이 원하는 위치에 왔을 때 자르기 버튼을 누르세요<br />
-          더 작은 부분만 남고 나머지는 사라집니다
-        </div>
       </div>
-    </div>
 
-    <script src="js/game.js"></script>
+      <!-- 게임 컨테이너들 -->
+      <div class="game-container" id="cuttingGame"></div>
+      <div class="game-container" id="memoryGame"></div>
+      <div class="game-container" id="balanceGame"></div>
+      <div class="game-container" id="rhythmGame"></div>
+      <div class="game-container" id="puzzleGame"></div>
+    </main>
+
+    <script src="js/main.js"></script>
   </body>
 </html>
