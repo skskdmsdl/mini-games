@@ -189,7 +189,7 @@ body {
 /* 메인 콘텐츠 스타일 */
 .main-content {
   max-width: 500px;
-  margin-top: 60px;
+  padding: 60px 0 0;
   min-height: calc(100vh - 60px);
   background: var(--bg);
   position: relative;
