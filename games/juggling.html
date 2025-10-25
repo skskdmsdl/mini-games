@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>저글링 게임</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="game-info">
+        <div class="info-item">
+          현재 시간<br />
+          <span id="currentTime">0.00s</span>
+        </div>
+        <div class="info-item">
+          아이템 수<br />
+          <span id="itemCount">1</span>
+        </div>
+        <div class="info-item highlight">
+          최고 기록<br />
+          <span id="bestTime">0.00s</span>
+        </div>
+      </div>
+
+      <div class="game-container">
+        <div class="rectangle-container" id="gameArea">
+          <div class="juggling-area">
+            <div class="paddle"></div>
+          </div>
+
+          <div class="game-over" id="gameOver">
+            <h2>게임 오버!</h2>
+            <p>기록: <span id="finalTime">0.00s</span></p>
+            <p>아이템 수: <span id="finalItemCount">1</span></p>
+            <p class="best-score">
+              최고 기록: <span id="finalBestTime">0.00s</span>
+            </p>
+            <button class="restart-btn" id="restartBtn">다시 시작</button>
+          </div>
+        </div>
+
+        <button class="control-btn" id="startBtn">게임 시작</button>
+
+        <div class="instructions">
+          아이템을 마우스로 클릭하거나 스페이스바를 눌러 튕겨 올리세요<br />
+          아이템이 바닥에 닿지 않도록 오래 유지하세요<br />
+          마우스나 방향키로 패들을 이동할 수 있습니다
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
