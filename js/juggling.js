@@ -18,6 +18,7 @@ const gameState = {
 // DOM 요소
 const elements = {
   gameArea: document.getElementById("gameArea"),
+  rectangleContainer: document.querySelector(".rectangle-container"),
   jugglingArea: document.querySelector(".juggling-area"),
   currentTime: document.getElementById("currentTime"),
   itemCount: document.getElementById("itemCount"),
@@ -271,13 +272,13 @@ function checkGameOver() {
 
 // 게임 종료
 function endGame() {
+  saveBestTime();
+
   gameState.active = false;
   elements.finalTime.textContent = gameState.currentTime.toFixed(2) + "s";
   elements.finalItemCount.textContent = gameState.itemCount;
   elements.finalBestTime.textContent = gameState.bestTime.toFixed(2) + "s";
   elements.gameOver.style.display = "flex";
-
-  saveBestTime();
 
   if (gameState.animationId) {
     cancelAnimationFrame(gameState.animationId);

@@ -15,11 +15,11 @@ class GameManager {
         css: "css/memory.css",
         js: "js/memory.js",
       },
-      balance: {
-        name: "에너지 밸런스",
-        file: "games/balance.html",
-        css: "css/balance.css",
-        js: "js/balance.js",
+      juggling: {
+        name: "저글링 게임",
+        file: "games/juggling.html",
+        css: "css/juggling.css",
+        js: "js/juggling.js",
       },
       rhythm: {
         name: "리듬 탭",

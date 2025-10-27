@@ -78,7 +78,7 @@ body {
   border-color: rgba(14, 165, 161, 0.25);
 }
 
-.game-container {
+#jugglingGame .game-container {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
@@ -233,7 +233,7 @@ body {
     padding: 12px 16px;
   }
 
-  .game-container {
+  #jugglingGame .game-container {
     padding: 12px 16px;
   }
 
