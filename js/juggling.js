@@ -415,6 +415,8 @@ function initializeGame() {
   const gameWidth = elements.jugglingArea.offsetWidth;
   gameState.paddleX = (gameWidth - gameState.paddleWidth) / 2;
   updatePaddlePosition();
+
+  // TODO: 높이 초기화 필요
 }
 
 // 게임 시작
