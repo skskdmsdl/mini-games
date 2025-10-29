@@ -417,6 +417,7 @@ function initializeGame() {
   updatePaddlePosition();
 
   // TODO: 높이 초기화 필요
+  setTimeout(initGame, 100);
 }
 
 // 게임 시작
