@@ -13,6 +13,10 @@ const gameState = {
   animationId: null,
   keys: {},
   isMouseOver: false,
+  initialOffset: 60, // 헤더 높이만큼 조정
+  totalHeight: 0,
+  playHeight: 0,
+  initialPlayHeight: 0,
 };
 
 // DOM 요소
@@ -46,6 +50,28 @@ const colorPalette = [
   "linear-gradient(135deg, #f97316, #ea580c)", // 오렌지
 ];
 
+// 높이 측정 함수 - 수정된 버전
+function measureHeights() {
+  const rect = elements.gameArea.getBoundingClientRect();
+  gameState.totalHeight = Math.max(rect.height, 100);
+
+  // 초기 playHeight 설정 (헤더 높이만큼 빼기)
+  if (gameState.initialPlayHeight === 0) {
+    gameState.initialPlayHeight = Math.max(
+      gameState.totalHeight - gameState.initialOffset,
+      200 // 최소 높이 보장
+    );
+  }
+
+  gameState.playHeight = gameState.initialPlayHeight;
+
+  console.log("높이 측정:", {
+    totalHeight: gameState.totalHeight,
+    initialPlayHeight: gameState.initialPlayHeight,
+    playHeight: gameState.playHeight,
+  });
+}
+
 // 로컬 스토리지에서 최고 기록 불러오기
 function loadBestTime() {
   const saved = localStorage.getItem("jugglingGameBestTime");
@@ -60,6 +86,21 @@ function saveBestTime() {
     localStorage.setItem("jugglingGameBestTime", gameState.bestTime.toString());
     elements.bestTime.textContent = gameState.bestTime.toFixed(2) + "s";
   }
+}
+
+// 게임 영역 크기 설정 함수 - 새로 추가
+function setupGameArea() {
+  measureHeights();
+
+  // 컨테이너 높이 고정 설정
+  elements.rectangleContainer.style.height = `${gameState.playHeight}px`;
+  elements.rectangleContainer.style.maxHeight = `${gameState.playHeight}px`;
+  elements.jugglingArea.style.height = `${gameState.playHeight}px`;
+
+  console.log("게임 영역 설정 완료:", {
+    containerHeight: elements.rectangleContainer.style.height,
+    playHeight: gameState.playHeight,
+  });
 }
 
 // 게임 초기화
@@ -77,6 +118,9 @@ function initGame() {
 
   // 버튼 텍스트 변경
   elements.startBtn.textContent = "게임 다시 시작";
+
+  // 게임 영역 크기 설정
+  setupGameArea();
 
   // 패들 초기 위치 설정 (중앙)
   const gameWidth = elements.jugglingArea.offsetWidth;
@@ -404,6 +448,13 @@ function setupEventListeners() {
     e.preventDefault();
     handleTouchMove(e);
   });
+
+  // 창 크기 변경 시 게임 영역 재설정
+  window.addEventListener("resize", () => {
+    if (gameState.active) {
+      setupGameArea();
+    }
+  });
 }
 
 // 초기화
@@ -411,13 +462,13 @@ function initializeGame() {
   loadBestTime();
   setupEventListeners();
 
+  // 초기 게임 영역 설정
+  setupGameArea();
+
   // 패들 초기 위치 설정
   const gameWidth = elements.jugglingArea.offsetWidth;
   gameState.paddleX = (gameWidth - gameState.paddleWidth) / 2;
   updatePaddlePosition();
-
-  // TODO: 높이 초기화 필요
-  setTimeout(initGame, 100);
 }
 
 // 게임 시작
