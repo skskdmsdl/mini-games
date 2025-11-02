@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>버튼 연타 게임</title>
+    <style>
+      :root {
+        --bg: #f7f7fb;
+        --panel: #ffffff;
+        --panel-soft: #fafafc;
+        --border: #e5e7eb;
+        --text: #111827;
+        --text-muted: #6b7280;
+        --accent: #0ea5a1;
+        --accent-600: #0d9488;
+        --accent-700: #0f766e;
+        --shadow-sm: 0 2px 8px rgba(17, 24, 39, 0.05);
+        --shadow-md: 0 8px 30px rgba(17, 24, 39, 0.08);
+        --shadow-inset: inset 0 2px 10px rgba(17, 24, 39, 0.04);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        touch-action: manipulation;
+      }
+
+      body {
+        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #app {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        max-width: 500px;
+        margin: 0 auto;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        position: relative;
+      }
+
+      .game-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        padding: 16px 20px;
+        background: var(--panel-soft);
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+
+      .info-item {
+        text-align: center;
+        padding: 8px 6px;
+        border-radius: 10px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        font-weight: 700;
+        font-size: 0.8rem;
+      }
+
+      .info-item span {
+        display: inline-block;
+        margin-top: 4px;
+        font-size: 1.1rem;
+        color: var(--accent-700);
+      }
+
+      .info-item.highlight {
+        background: linear-gradient(
+            0deg,
+            rgba(14, 165, 161, 0.06),
+            rgba(14, 165, 161, 0.06)
+          ),
+          var(--panel);
+        border-color: rgba(14, 165, 161, 0.25);
+      }
+
+      .game-container {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 0;
+        padding: 18px 22px;
+      }
+
+      .rectangle-container {
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        flex: 1 1 auto;
+        min-height: clamp(200px, 30svh, 360px);
+        border-radius: 14px;
+        background: #fafafc;
+        border: 1px solid #e5e7eb;
+        box-shadow: var(--shadow-inset);
+      }
+
+      .smash-area {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+      }
+
+      .smash-target {
+        flex: 1;
+        background: var(--accent);
+        border: 1px solid var(--accent-600);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 8px 0 var(--accent-600),
+          0 12px 20px rgba(14, 165, 161, 0.3);
+        transition: all 0.1s ease;
+        user-select: none;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .smash-target:active {
+        transform: translateY(4px);
+        box-shadow: 0 4px 0 var(--accent-600),
+          0 6px 10px rgba(14, 165, 161, 0.3);
+      }
+
+      .smash-target.hit {
+        background: var(--accent-700);
+        animation: hitFlash 0.2s ease;
+      }
+
+      @keyframes hitFlash {
+        0% {
+          background: var(--accent-700);
+        }
+        50% {
+          background: #10b981;
+        }
+        100% {
+          background: var(--accent-700);
+        }
+      }
+
+      .progress-container {
+        margin-top: 20px;
+        background: var(--panel-soft);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .progress-bar {
+        height: 20px;
+        background: linear-gradient(
+          90deg,
+          var(--accent) 0%,
+          var(--accent-600) 100%
+        );
+        border-radius: 8px;
+        transition: width 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .time-display {
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--accent-700);
+        margin-top: 8px;
+      }
+
+      .control-btn {
+        background: var(--accent);
+        border: 1px solid var(--accent-600);
+        border-radius: 12px;
+        padding: 16px 20px;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #fff;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+        margin: 12px auto;
+        box-shadow: 0 4px 16px rgba(14, 165, 161, 0.25);
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+
+      .control-btn:active {
+        background: var(--accent-700);
+        transform: scale(0.98);
+      }
+
+      .control-btn:disabled {
+        background: #d1d5db;
+        border-color: #d1d5db;
+        color: #6b7280;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+
+      .instructions {
+        text-align: center;
+        padding: 12px;
+        border-radius: 10px;
+        background: var(--panel-soft);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        line-height: 1.4;
+        flex-shrink: 0;
+      }
+
+      .game-over {
+        display: none;
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.98);
+        z-index: 20;
+        padding: 30px;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        border: 1px solid var(--border);
+      }
+
+      .game-over h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        color: var(--text);
+        text-align: center;
+      }
+
+      .game-over p {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        color: var(--text);
+        text-align: center;
+      }
+
+      .best-score {
+        color: var(--accent-700);
+        font-weight: 800;
+      }
+
+      .restart-btn {
+        background: var(--accent);
+        border: 1px solid var(--accent-600);
+        border-radius: 12px;
+        padding: 14px 28px;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #fff;
+        cursor: pointer;
+        margin-top: 16px;
+        box-shadow: 0 4px 16px rgba(14, 165, 161, 0.25);
+        transition: all 0.2s ease;
+      }
+
+      .restart-btn:active {
+        background: var(--accent-700);
+        transform: scale(0.98);
+      }
+
+      @media (max-height: 700px) {
+        .game-info {
+          padding: 12px 16px;
+        }
+
+        .game-container {
+          padding: 12px 16px;
+        }
+
+        .control-btn {
+          margin: 8px auto;
+          padding: 14px 18px;
+        }
+
+        .instructions {
+          padding: 10px;
+          font-size: 0.8rem;
+        }
+      }
+
+      @media (max-height: 600px) {
+        .instructions {
+          display: none;
+        }
+
+        .control-btn {
+          margin: 4px auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="game-info">
+        <div class="info-item">
+          현재 점수<br />
+          <span id="currentScore">0</span>
+        </div>
+        <div class="info-item">
+          남은 시간<br />
+          <span id="timeLeft">10초</span>
+        </div>
+        <div class="info-item highlight">
+          최고 기록<br />
+          <span id="bestScore">0</span>
+        </div>
+      </div>
+
+      <div class="game-container">
+        <div class="rectangle-container" id="gameArea">
+          <div class="smash-area">
+            <div class="smash-target" id="smashTarget">
+              BASHI!<br />
+              <small style="font-size: 1rem; opacity: 0.9"
+                >여기를 연타하세요!</small
+              >
+            </div>
+
+            <div class="progress-container">
+              <div
+                class="progress-bar"
+                id="progressBar"
+                style="width: 100%"
+              ></div>
+              <div class="time-display" id="timeDisplay">10초 남음</div>
+            </div>
+          </div>
+
+          <div class="game-over" id="gameOver">
+            <h2>게임 종료!</h2>
+            <p>최종 점수: <span id="finalScore">0</span></p>
+            <p class="best-score">
+              최고 기록: <span id="finalBestScore">0</span>
+            </p>
+            <button class="restart-btn" id="restartBtn">다시 시작</button>
+          </div>
+        </div>
+
+        <button class="control-btn" id="startBtn">게임 시작</button>
+
+        <div class="instructions">
+          10초 동안 버튼을 최대한 많이 눌러보세요!<br />
+          빠르게 연타할수록 높은 점수를 얻을 수 있습니다
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 게임 상태
+      const gameState = {
+        active: false,
+        score: 0,
+        bestScore: 0,
+        timeLeft: 10,
+        timer: null,
+        initialTime: 10,
+      };
+
+      // DOM 요소
+      const elements = {
+        gameArea: document.getElementById("gameArea"),
+        smashTarget: document.getElementById("smashTarget"),
+        currentScore: document.getElementById("currentScore"),
+        timeLeft: document.getElementById("timeLeft"),
+        bestScore: document.getElementById("bestScore"),
+        finalScore: document.getElementById("finalScore"),
+        finalBestScore: document.getElementById("finalBestScore"),
+        gameOver: document.getElementById("gameOver"),
+        startBtn: document.getElementById("startBtn"),
+        restartBtn: document.getElementById("restartBtn"),
+        progressBar: document.getElementById("progressBar"),
+        timeDisplay: document.getElementById("timeDisplay"),
+      };
+
+      // 로컬 스토리지에서 최고 기록 불러오기
+      function loadBestScore() {
+        const saved = localStorage.getItem("smashGameBestScore");
+        gameState.bestScore = saved ? parseInt(saved) : 0;
+        elements.bestScore.textContent = gameState.bestScore;
+      }
+
+      // 최고 기록 저장하기
+      function saveBestScore() {
+        if (gameState.score > gameState.bestScore) {
+          gameState.bestScore = gameState.score;
+          localStorage.setItem(
+            "smashGameBestScore",
+            gameState.bestScore.toString()
+          );
+          elements.bestScore.textContent = gameState.bestScore;
+        }
+      }
+
+      // 게임 초기화
+      function initGame() {
+        // 게임 상태 초기화
+        gameState.active = true;
+        gameState.score = 0;
+        gameState.timeLeft = gameState.initialTime;
+
+        // 버튼 텍스트 변경
+        elements.startBtn.textContent = "게임 다시 시작";
+
+        // UI 업데이트
+        elements.gameOver.style.display = "none";
+        elements.currentScore.textContent = "0";
+        elements.timeLeft.textContent = gameState.timeLeft + "초";
+        elements.progressBar.style.width = "100%";
+        elements.timeDisplay.textContent = gameState.timeLeft + "초 남음";
+
+        // 타이머 시작
+        startTimer();
+      }
+
+      // 타이머 시작
+      function startTimer() {
+        if (gameState.timer) {
+          clearInterval(gameState.timer);
+        }
+
+        gameState.timer = setInterval(() => {
+          gameState.timeLeft--;
+
+          // UI 업데이트
+          const progressPercent =
+            (gameState.timeLeft / gameState.initialTime) * 100;
+          elements.progressBar.style.width = progressPercent + "%";
+          elements.timeLeft.textContent = gameState.timeLeft + "초";
+          elements.timeDisplay.textContent = gameState.timeLeft + "초 남음";
+
+          // 시간 종료 체크
+          if (gameState.timeLeft <= 0) {
+            endGame();
+          }
+        }, 1000);
+      }
+
+      // 버튼 클릭 처리
+      function handleSmash() {
+        if (!gameState.active) return;
+
+        // 점수 증가
+        gameState.score++;
+        elements.currentScore.textContent = gameState.score;
+
+        // 히트 효과
+        elements.smashTarget.classList.add("hit");
+        setTimeout(() => {
+          elements.smashTarget.classList.remove("hit");
+        }, 200);
+
+        // 모바일 진동 효과
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+      }
+
+      // 게임 종료
+      function endGame() {
+        gameState.active = false;
+
+        // 타이머 정지
+        if (gameState.timer) {
+          clearInterval(gameState.timer);
+        }
+
+        // 최고 기록 저장
+        saveBestScore();
+
+        // 결과 화면 표시
+        elements.finalScore.textContent = gameState.score;
+        elements.finalBestScore.textContent = gameState.bestScore;
+        elements.gameOver.style.display = "flex";
+      }
+
+      // 이벤트 리스너 설정
+      function setupEventListeners() {
+        // 게임 시작 버튼
+        elements.startBtn.addEventListener("click", initGame);
+
+        // 다시 시작 버튼
+        elements.restartBtn.addEventListener("click", initGame);
+
+        // 연타 버튼
+        elements.smashTarget.addEventListener("click", handleSmash);
+
+        // 스페이스바로도 연타 가능
+        document.addEventListener("keydown", (e) => {
+          if (e.code === "Space" && gameState.active) {
+            handleSmash();
+            e.preventDefault();
+          }
+        });
+
+        // 터치 이벤트 (모바일 최적화)
+        elements.smashTarget.addEventListener("touchstart", (e) => {
+          if (gameState.active) {
+            handleSmash();
+            e.preventDefault();
+          }
+        });
+      }
+
+      // 초기화
+      function initializeGame() {
+        loadBestScore();
+        setupEventListeners();
+      }
+
+      // 게임 시작
+      initializeGame();
+    </script>
+  </body>
+</html>
