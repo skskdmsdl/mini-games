@@ -133,12 +133,12 @@ function setupEventListeners() {
   elements.smashTarget.addEventListener("click", handleSmash);
 
   // 스페이스바로도 연타 가능
-  document.addEventListener("keydown", (e) => {
-    if (e.code === "Space" && gameState.active) {
-      handleSmash();
-      e.preventDefault();
-    }
-  });
+  // document.addEventListener("keydown", (e) => {
+  //   if (e.code === "Space" && gameState.active) {
+  //     handleSmash();
+  //     e.preventDefault();
+  //   }
+  // });
 
   // 터치 이벤트 (모바일 최적화)
   elements.smashTarget.addEventListener("touchstart", (e) => {
