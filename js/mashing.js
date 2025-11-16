@@ -91,7 +91,7 @@ function handleSmash() {
   gameState.score++;
   elements.currentScore.textContent = gameState.score;
 
-  // 히트 효과
+  // 클릭 효과
   elements.smashTarget.classList.add("hit");
   setTimeout(() => {
     elements.smashTarget.classList.remove("hit");

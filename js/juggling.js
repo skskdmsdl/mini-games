@@ -23,7 +23,7 @@ const gameState = {
 const elements = {
   gameArea: document.getElementById("gameArea"),
   rectangleContainer: document.querySelector(".rectangle-container"),
-  jugglingArea: document.querySelector(".juggling-area"),
+  jugglingArea: document.querySelector(".jugglin햐g-area"),
   currentTime: document.getElementById("currentTime"),
   itemCount: document.getElementById("itemCount"),
   bestTime: document.getElementById("bestTime"),
