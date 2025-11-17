@@ -129,7 +129,7 @@ function setupEventListeners() {
   // 다시 시작 버튼
   elements.restartBtn.addEventListener("click", initGame);
 
-  // 연타 버튼
+  // 터치 버튼
   elements.smashTarget.addEventListener("click", handleSmash);
 
   // 터치 이벤트 (모바일 최적화)
