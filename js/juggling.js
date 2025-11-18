@@ -50,7 +50,7 @@ const colorPalette = [
   "linear-gradient(135deg, #f97316, #ea580c)", // 오렌지
 ];
 
-// 높이 측정 함수 - 수정된 버전
+// 높이 측정 함수
 function measureHeights() {
   const rect = elements.gameArea.getBoundingClientRect();
   gameState.totalHeight = Math.max(rect.height, 100);
