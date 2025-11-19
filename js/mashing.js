@@ -31,7 +31,7 @@ function loadBestScore() {
   elements.bestScore.textContent = gameState.bestScore;
 }
 
-// 최고 기록 저장하기
+// 최고 기록 로컬 스토리지에 저장하기
 function saveBestScore() {
   if (gameState.score > gameState.bestScore) {
     gameState.bestScore = gameState.score;
